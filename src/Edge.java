@@ -20,16 +20,25 @@ public class Edge {
         this.weight=weight;
     }
 
-    public void draw(Graphics g) {
+    public Edge() {
+	}
+
+	public void draw(Graphics g) {
         Point p1 = n1.getLocation();
         Point p2 = n2.getLocation();
         g.setColor(color);
+        
         if(!directivity){
         	g.drawLine(p1.x, p1.y, p2.x, p2.y);
         	g.drawString(String.valueOf(weight), (p1.x+p2.x)/2, (p1.y+p2.y)/2);
         }
         else{
         	
+        	int offset = 15;
+        	if(p1.x<p2.x)
+        		offset=-offset;
+			g.drawLine(p1.x+offset, p1.y+offset, p2.x+offset, p2.y+offset);
+			g.drawString(String.valueOf(weight)+"("+n1.name+","+n2.name+")", (p1.x+p2.x)/2+offset, (p1.y+p2.y)/2+offset);
         }
         
     }

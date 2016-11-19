@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -45,7 +46,7 @@ public class GraphPanel extends JComponent {
     public int radius = RADIUS;
     public List<Node> nodes = new ArrayList<Node>();
     public List<Node> selected = new ArrayList<Node>();
-    public List<Edge> edges = new ArrayList<Edge>();
+    public static List<Edge> edges = new ArrayList<Edge>();
     public Point mousePt = new Point(WIDE / 2, HIGH / 2);
     public Rectangle mouseRect = new Rectangle();
     public boolean selecting = false;
@@ -406,6 +407,18 @@ public class GraphPanel extends JComponent {
 					izlaz.setText("Otkriven ciklus negativne tezine");
 				}
 			}
+    		for (Node node : predhodnik.keySet()) {
+				Node n1 = node;
+				Node n2 = predhodnik.get(node);
+				Edge e = new Edge();
+				for (Edge edge : edges) {
+					if(edge.n1.equals(n1) && edge.n2.equals(n2) ||
+							(!edge.directivity && edge.n2.equals(n1) && edge.n1.equals(n2) ))
+						e=edge;
+				}
+				e.color=Color.GREEN;
+			}
+    		repaint();
     		izlaz.setText(izlaz.getText()+"\nBellman-Ford ended");
 		}
     	
