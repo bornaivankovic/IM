@@ -24,15 +24,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JSpinner;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 public class GraphPanel extends JComponent {
 
@@ -91,7 +84,6 @@ public class GraphPanel extends JComponent {
 			selecting = false;
 			mouseRect.setBounds(0, 0, 0, 0);
 			if (e.isPopupTrigger()) {
-				showPopup(e);
 			}
 			e.getComponent().repaint();
 		}
@@ -101,9 +93,6 @@ public class GraphPanel extends JComponent {
 			mousePt = e.getPoint();
 			if (e.isShiftDown()) {
 				Node.selectToggle(nodes, mousePt);
-			} else if (e.isPopupTrigger()) {
-				Node.selectOne(nodes, mousePt);
-				showPopup(e);
 			} else if (Node.selectOne(nodes, mousePt)) {
 				selecting = false;
 			} else {
@@ -113,9 +102,6 @@ public class GraphPanel extends JComponent {
 			e.getComponent().repaint();
 		}
 
-		private void showPopup(MouseEvent e) {
-			control.popup.show(e.getComponent(), e.getX(), e.getY());
-		}
 	}
 
 	private class MouseMotionHandler extends MouseMotionAdapter {
@@ -143,50 +129,19 @@ public class GraphPanel extends JComponent {
 
 	public class ControlPanel extends JToolBar {
 
-		public Action newNode = new NewNodeAction("New");
-		public Action clearAll = new ClearAction("Clear");
-		public Action color = new ColorAction("Color");
-		public Action connect = new ConnectAction("Connect");
-		public Action delete = new DeleteAction("Delete");
-		public Action random = new RandomAction("Random");
-		public Action bellmanFord = new bfAction("Bellman-Ford");
+		public Action bellmanFord = new bfAction("Start");
 		public Action cont = new ContinueAction("Continue");
-		public JButton defaultButton = new JButton(newNode);
 		public JCheckBox koraci = new JCheckBox("Prikazi korake?");
 		public ColorIcon hueIcon = new ColorIcon(Color.blue);
-		public JPopupMenu popup = new JPopupMenu();
 
 		ControlPanel() {
 			setLayout(new FlowLayout(FlowLayout.LEFT));
 			setBackground(Color.lightGray);
 
-			this.add(defaultButton);
-			this.add(new JButton(clearAll));
-			this.add(new JButton(color));
-			this.add(new JLabel(hueIcon));
-			JSpinner js = new JSpinner();
-			js.setModel(new SpinnerNumberModel(RADIUS, 5, 100, 5));
-			js.addChangeListener(new ChangeListener() {
-
-				@Override
-				public void stateChanged(ChangeEvent e) {
-					JSpinner s = (JSpinner) e.getSource();
-					radius = (Integer) s.getValue();
-					Node.updateRadius(nodes, radius);
-					GraphPanel.this.repaint();
-				}
-			});
-			this.add(new JLabel("Size:"));
-			this.add(js);
-			this.add(new JButton(random));
 			this.add(new JButton(bellmanFord));
 			this.add(koraci);
 			this.add(new JButton(cont));
 
-			popup.add(new JMenuItem(newNode));
-			popup.add(new JMenuItem(color));
-			popup.add(new JMenuItem(connect));
-			popup.add(new JMenuItem(delete));
 		}
 	}
 

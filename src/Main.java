@@ -37,7 +37,6 @@ public class Main {
 		JScrollPane scrollPane = new JScrollPane(gp);
 		scrollPane.setPreferredSize(new Dimension(800, 600));
 		frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
-		frame.getRootPane().setDefaultButton(gp.control.defaultButton);
 
 		gp.nodes = nodes;
 		gp.edges = edges;
