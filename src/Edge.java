@@ -4,6 +4,9 @@ import java.awt.Point;
 
 /**
  * An Edge is a pair of Nodes.
+ *
+ * @author Borna Ivankovic
+ *
  */
 public class Edge {
 
@@ -13,6 +16,17 @@ public class Edge {
 	public int weight;
 	public Color color = Color.DARK_GRAY;
 
+	/**
+	 *
+	 * @param n1
+	 *            first node
+	 * @param n2
+	 *            second node
+	 * @param directivity
+	 *            whether this edge is directional or not
+	 * @param weight
+	 *            the weight of this edge
+	 */
 	public Edge(Node n1, Node n2, boolean directivity, int weight) {
 		this.n1 = n1;
 		this.n2 = n2;
@@ -23,6 +37,12 @@ public class Edge {
 	public Edge() {
 	}
 
+	/**
+	 * Draw this edge
+	 *
+	 * @param g
+	 *            the graphics element of the parent component
+	 */
 	public void draw(Graphics g) {
 		Point p1 = n1.getLocation();
 		Point p2 = n2.getLocation();

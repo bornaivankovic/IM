@@ -1,6 +1,5 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -13,22 +12,24 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 
+/**
+ * Panel containing all the elements that are to be drawn
+ *
+ * @author Borna Ivankovic
+ *
+ */
 public class GraphPanel extends JComponent {
-
 	public static final int WIDE = 800;
 	public static final int HIGH = 600;
 	public static final int RADIUS = 35;
@@ -127,12 +128,17 @@ public class GraphPanel extends JComponent {
 		return control;
 	}
 
+	/**
+	 * Custom toolbar class
+	 *
+	 * @author Borna Ivankovic
+	 *
+	 */
 	public class ControlPanel extends JToolBar {
 
 		public Action bellmanFord = new bfAction("Start");
 		public Action cont = new ContinueAction("Continue");
 		public JCheckBox koraci = new JCheckBox("Prikazi korake?");
-		public ColorIcon hueIcon = new ColorIcon(Color.blue);
 
 		ControlPanel() {
 			setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -145,123 +151,12 @@ public class GraphPanel extends JComponent {
 		}
 	}
 
-	private class ClearAction extends AbstractAction {
-
-		public ClearAction(String name) {
-			super(name);
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			nodes.clear();
-			edges.clear();
-			repaint();
-		}
-	}
-
-	private class ColorAction extends AbstractAction {
-
-		public ColorAction(String name) {
-			super(name);
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			Color color = control.hueIcon.getColor();
-			color = JColorChooser.showDialog(GraphPanel.this, "Choose a color", color);
-			if (color != null) {
-				Node.updateColor(nodes, color);
-				control.hueIcon.setColor(color);
-				control.repaint();
-				repaint();
-			}
-		}
-	}
-
-	private class ConnectAction extends AbstractAction {
-
-		public ConnectAction(String name) {
-			super(name);
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			Node.getSelected(nodes, selected);
-			if (selected.size() > 1) {
-				for (int i = 0; i < selected.size() - 1; ++i) {
-					Node n1 = selected.get(i);
-					Node n2 = selected.get(i + 1);
-					edges.add(new Edge(n1, n2, false, 10));
-				}
-			}
-			repaint();
-		}
-	}
-
-	private class DeleteAction extends AbstractAction {
-
-		public DeleteAction(String name) {
-			super(name);
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			ListIterator<Node> iter = nodes.listIterator();
-			while (iter.hasNext()) {
-				Node n = iter.next();
-				if (n.isSelected()) {
-					deleteEdges(n);
-					iter.remove();
-				}
-			}
-			repaint();
-		}
-
-		private void deleteEdges(Node n) {
-			ListIterator<Edge> iter = edges.listIterator();
-			while (iter.hasNext()) {
-				Edge e = iter.next();
-				if (e.n1 == n || e.n2 == n) {
-					iter.remove();
-				}
-			}
-		}
-	}
-
-	private class NewNodeAction extends AbstractAction {
-
-		public NewNodeAction(String name) {
-			super(name);
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			Node.selectNone(nodes);
-			Point p = mousePt.getLocation();
-			Color color = control.hueIcon.getColor();
-			Node n = new Node(p, radius, color, "c");
-			n.setSelected(true);
-			nodes.add(n);
-			repaint();
-		}
-	}
-
-	private class RandomAction extends AbstractAction {
-
-		public RandomAction(String name) {
-			super(name);
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			for (int i = 0; i < 16; i++) {
-				Point p = new Point(rnd.nextInt(getWidth()), rnd.nextInt(getHeight()));
-				nodes.add(new Node(p, radius, new Color(rnd.nextInt()), "c"));
-			}
-			repaint();
-		}
-	}
-
+	/**
+	 * Action triggered upon clicking the continue button
+	 *
+	 * @author Borna Ivankovic
+	 *
+	 */
 	private class ContinueAction extends AbstractAction {
 
 		public ContinueAction(String name) {
@@ -274,6 +169,12 @@ public class GraphPanel extends JComponent {
 		}
 	}
 
+	/**
+	 * Action triggered upon clicking the start button
+	 *
+	 * @author Borna Ivankovic
+	 *
+	 */
 	private class bfAction extends AbstractAction {
 
 		public bfAction(String string) {
@@ -291,6 +192,12 @@ public class GraphPanel extends JComponent {
 
 	}
 
+	/**
+	 * Class representing the Bellman-Ford algorithm.
+	 *
+	 * @author Borna Ivankovic
+	 *
+	 */
 	private class BellmanFord implements Runnable {
 
 		private HashMap<Node, Integer> udaljenosti = new HashMap<>();
@@ -298,6 +205,9 @@ public class GraphPanel extends JComponent {
 		private final int INF = 10000;
 		private Node start;
 
+		/**
+		 * All logic behind the algorithm is run here.
+		 */
 		@Override
 		public void run() {
 			Node.getSelected(nodes, selected);
@@ -306,8 +216,9 @@ public class GraphPanel extends JComponent {
 			} else {
 				start = nodes.get(ThreadLocalRandom.current().nextInt(nodes.size()));
 			}
-			izlaz.setText("Odabran pocetni cvor: " + start);
 
+			String startTxt = "Odabran pocetni cvor: " + start;
+			izlaz.setText(startTxt);
 			for (Node node : nodes) {
 				udaljenosti.put(node, INF);
 				predhodnik.put(node, null);
@@ -321,7 +232,8 @@ public class GraphPanel extends JComponent {
 				}
 				imaPromjene = false;
 				for (Edge edge : edges) {
-					izlaz.setText(udaljenosti.toString() + "\n" + predhodnik.toString());
+					izlaz.setText(startTxt + "\n" + "Udaljenosti: " + udaljenosti.toString() + "\n" + "Predhodnici: "
+							+ predhodnik.toString());
 					cont = !control.koraci.isSelected();
 					edge.color = Color.BLUE;
 					repaint();
@@ -370,40 +282,5 @@ public class GraphPanel extends JComponent {
 			izlaz.setText(izlaz.getText() + "\nBellman-Ford ended");
 		}
 
-	}
-
-	private static class ColorIcon implements Icon {
-
-		private static final int WIDE = 20;
-		private static final int HIGH = 20;
-		private Color color;
-
-		public ColorIcon(Color color) {
-			this.color = color;
-		}
-
-		public Color getColor() {
-			return color;
-		}
-
-		public void setColor(Color color) {
-			this.color = color;
-		}
-
-		@Override
-		public void paintIcon(Component c, Graphics g, int x, int y) {
-			g.setColor(color);
-			g.fillRect(x, y, WIDE, HIGH);
-		}
-
-		@Override
-		public int getIconWidth() {
-			return WIDE;
-		}
-
-		@Override
-		public int getIconHeight() {
-			return HIGH;
-		}
 	}
 }

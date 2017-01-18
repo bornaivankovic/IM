@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,25 +11,52 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 
+/**
+ *
+ * Main class where everything gets initialized and GUI gets shown
+ *
+ * @author Borna Ivankovic
+ *
+ */
 public class Main {
 
 	public static void main(String[] args) throws IOException {
-		ArrayList<Node> nodes = new ArrayList<>();
-		ArrayList<Edge> edges = new ArrayList<>();
-		parseFile("mreza.txt", nodes, edges);
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				createAndShowGUI(nodes, edges);
+				createAndShowGUI();
 			}
 		});
 	}
 
-	private static void createAndShowGUI(ArrayList<Node> nodes, ArrayList<Edge> edges) {
+	/**
+	 * Method for initializing all the values and showing the GUI at the end
+	 *
+	 * @param nodes
+	 *            list of all nodes
+	 * @param edges
+	 *            list of all edges
+	 */
+	private static void createAndShowGUI() {
 		JFrame frame = new JFrame("Bellman-Ford");
+
+		ArrayList<Node> nodes = new ArrayList<>();
+		ArrayList<Edge> edges = new ArrayList<>();
+		JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showOpenDialog(frame);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			try {
+				parseFile(file, nodes, edges);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 		frame.setPreferredSize(new Dimension(850, 700));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GraphPanel gp = new GraphPanel();
@@ -45,10 +73,23 @@ public class Main {
 		frame.setVisible(true);
 	}
 
-	private static void parseFile(String filename, ArrayList<Node> nodes, ArrayList<Edge> edges) throws IOException {
+	/**
+	 * Method for parsing the file
+	 *
+	 * @param file
+	 *            file to parse
+	 * @param nodes
+	 *            reference to the nodes array where all the found nodes will be
+	 *            stored
+	 * @param edges
+	 *            reference to the edges array where all the found edges will be
+	 *            stored
+	 * @throws IOException
+	 */
+	private static void parseFile(File file, ArrayList<Node> nodes, ArrayList<Edge> edges) throws IOException {
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader(filename));
+			br = new BufferedReader(new FileReader(file));
 			String line;
 			while ((line = br.readLine()) != null) {
 				String[] redak = line.split(" ");
